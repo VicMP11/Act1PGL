@@ -36,15 +36,14 @@ public class MainActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.nav_menu) {
-                    // Abre el menú lateral tipo hamburguesa
                     drawerLayout.openDrawer(GravityCompat.START);
                     return true;
                 } else if (itemId == R.id.nav_tasks) {
                     selectedFragment = new TasksFragment();
                 } else if (itemId == R.id.nav_calendar) {
-                    selectedFragment = new TasksFragment(); // Reemplazar luego por CalendarFragment
+                    selectedFragment = new CalendarFragment();
                 } else if (itemId == R.id.nav_profile) {
-                    selectedFragment = new TasksFragment(); // Reemplazar luego por ProfileFragment
+                    selectedFragment = new ProfileFragment();
                 }
 
                 if (selectedFragment != null) {
