@@ -1,5 +1,6 @@
 package com.example.act1pgl;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,7 +17,9 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
 
@@ -28,6 +32,7 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
     private Task taskToEdit;
     private List<Subtask> subtasksList = new ArrayList<>();
     private String selectedCategory = "Work";
+    private String selectedDate = "";
 
     public void setOnTaskSaveListener(OnTaskSaveListener listener) {
         this.listener = listener;
@@ -47,13 +52,14 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
         ImageButton btnAddSubtask = view.findViewById(R.id.btn_add_subtask);
         LinearLayout containerSubtasks = view.findViewById(R.id.container_subtasks);
         TextView tvCategory = view.findViewById(R.id.tv_category_selector);
+        ImageView btnPickDate = view.findViewById(R.id.btn_pick_date);
         ImageButton btnDelete = view.findViewById(R.id.btn_delete_task);
         FloatingActionButton fabSave = view.findViewById(R.id.fab_save_task);
 
-        // Si estamos editando, mostramos datos y botón de eliminar
         if (taskToEdit != null) {
             etTitle.setText(taskToEdit.getTitle());
             selectedCategory = taskToEdit.getCategory();
+            selectedDate = taskToEdit.getDueDate();
             tvCategory.setText(selectedCategory);
             btnDelete.setVisibility(View.VISIBLE);
 
@@ -67,6 +73,18 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
         tvCategory.setOnClickListener(v -> {
             selectedCategory = selectedCategory.equals("Work") ? "Personal" : "Work";
             tvCategory.setText(selectedCategory);
+        });
+
+        // Selector de fecha
+        btnPickDate.setOnClickListener(v -> {
+            Calendar cal = Calendar.getInstance();
+            DatePickerDialog datePicker = new DatePickerDialog(requireContext(),
+                    (datePickerView, year, month, dayOfMonth) -> {
+                        selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                        Toast.makeText(getContext(), "Fecha seleccionada: " + selectedDate, Toast.LENGTH_SHORT).show();
+                    },
+                    cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+            datePicker.show();
         });
 
         // Botón añadir subtarea
@@ -98,6 +116,7 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
             Task taskToReturn = (taskToEdit != null) ? taskToEdit : new Task(title, selectedCategory);
             taskToReturn.setTitle(title);
             taskToReturn.setCategory(selectedCategory);
+            taskToReturn.setDueDate(selectedDate);
             taskToReturn.setSubtasks(subtasksList);
 
             if (listener != null) {

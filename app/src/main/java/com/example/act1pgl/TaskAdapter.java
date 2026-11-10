@@ -1,6 +1,7 @@
 package com.example.act1pgl;
 
 import android.graphics.Paint;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         Task task = taskList.get(position);
         holder.tvTitle.setText(task.getTitle());
         holder.tvCategory.setText(task.getCategory());
+
+        // Configurar la fecha
+        if (!TextUtils.isEmpty(task.getDueDate())) {
+            holder.tvDate.setText("📅 " + task.getDueDate());
+            holder.tvDate.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvDate.setVisibility(View.GONE);
+        }
 
         // Clic en la tarjeta abre edición
         holder.itemView.setOnClickListener(v -> {
@@ -106,7 +115,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     static class TaskViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkBox;
-        TextView tvTitle, tvCategory;
+        TextView tvTitle, tvCategory, tvDate;
         LinearLayout containerSubtasks;
 
         public TaskViewHolder(@NonNull View itemView) {
@@ -114,6 +123,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             checkBox = itemView.findViewById(R.id.checkbox_task);
             tvTitle = itemView.findViewById(R.id.tv_task_title);
             tvCategory = itemView.findViewById(R.id.tv_task_category);
+            tvDate = itemView.findViewById(R.id.tv_task_date);
             containerSubtasks = itemView.findViewById(R.id.container_item_subtasks);
         }
     }

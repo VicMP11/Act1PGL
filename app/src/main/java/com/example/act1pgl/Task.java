@@ -8,6 +8,7 @@ public class Task {
     private String id;
     private String title;
     private String category;
+    private String dueDate; // Formato "YYYY-MM-DD" o vacío ""
     private boolean isCompleted;
     private List<Subtask> subtasks;
 
@@ -15,6 +16,7 @@ public class Task {
         this.id = UUID.randomUUID().toString();
         this.title = title;
         this.category = category;
+        this.dueDate = "";
         this.isCompleted = false;
         this.subtasks = new ArrayList<>();
     }
@@ -24,6 +26,8 @@ public class Task {
     public void setTitle(String title) { this.title = title; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+    public String getDueDate() { return dueDate; }
+    public void setDueDate(String dueDate) { this.dueDate = dueDate; }
     public boolean isCompleted() { return isCompleted; }
     public void setCompleted(boolean completed) { isCompleted = completed; }
     public List<Subtask> getSubtasks() { return subtasks; }
