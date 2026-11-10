@@ -8,7 +8,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -29,30 +30,53 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_tasks);
         }
 
-        bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment selectedFragment = null;
-                int itemId = item.getItemId();
+        // Navegación del BottomNavigationView
+        bottomNav.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            int itemId = item.getItemId();
 
-                if (itemId == R.id.nav_menu) {
-                    drawerLayout.openDrawer(GravityCompat.START);
-                    return true;
-                } else if (itemId == R.id.nav_tasks) {
-                    selectedFragment = new TasksFragment();
-                } else if (itemId == R.id.nav_calendar) {
-                    selectedFragment = new CalendarFragment();
-                } else if (itemId == R.id.nav_profile) {
-                    selectedFragment = new ProfileFragment();
-                }
-
-                if (selectedFragment != null) {
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, selectedFragment)
-                            .commit();
-                }
+            if (itemId == R.id.nav_menu) {
+                drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            } else if (itemId == R.id.nav_tasks) {
+                selectedFragment = new TasksFragment();
+            } else if (itemId == R.id.nav_calendar) {
+                selectedFragment = new CalendarFragment();
+            } else if (itemId == R.id.nav_profile) {
+                selectedFragment = new ProfileFragment();
             }
+
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, selectedFragment)
+                        .commit();
+            }
+            return true;
+        });
+
+        // Navegación del Drawer Lateral (Menú Hamburguesa)
+        navigationView.setNavigationItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_focus) {
+                selectedFragment = new FocusFragment();
+            } else if (itemId == R.id.nav_habits) {
+                selectedFragment = new HabitsFragment();
+            } else if (itemId == R.id.nav_categories) {
+                selectedFragment = new CategoriesFragment();
+            } else if (itemId == R.id.nav_settings) {
+                selectedFragment = new SettingsFragment();
+            }
+
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, selectedFragment)
+                        .commit();
+            }
+
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
         });
     }
 }
