@@ -14,7 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TasksFragment extends Fragment {
+public class TasksFragment extends Fragment implements TaskAdapter.OnTaskActionListener {
 
     private TaskAdapter adapter;
     private String currentCategoryFilter = "All";
@@ -24,19 +24,15 @@ public class TasksFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tasks, container, false);
 
-        // 1. Obtener la lista compartida desde el repositorio
         List<Task> allTasks = TaskRepository.getInstance().getTasks();
 
-        // 2. Configurar RecyclerView
         RecyclerView recyclerView = view.findViewById(R.id.recycler_tasks);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new TaskAdapter(new ArrayList<>(allTasks));
+        adapter = new TaskAdapter(new ArrayList<>(allTasks), this);
         recyclerView.setAdapter(adapter);
 
-        // Aplicar el filtro actual
         filterTasks(currentCategoryFilter);
 
-        // 3. Filtrado por Chips (All, Work, Personal)
         ChipGroup chipGroup = view.findViewById(R.id.chip_group_filter);
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) return;
@@ -52,20 +48,35 @@ public class TasksFragment extends Fragment {
             filterTasks(currentCategoryFilter);
         });
 
-        // 4. Botón Flotante (+)
         FloatingActionButton fab = view.findViewById(R.id.fab_add_task);
-        fab.setOnClickListener(v -> {
-            AddTaskBottomSheetFragment bottomSheet = new AddTaskBottomSheetFragment();
-            bottomSheet.setOnTaskAddedListener(newTask -> {
-                // Guardar en el repositorio centralizado
-                TaskRepository.getInstance().addTask(newTask);
-                // Actualizar la vista respetando el filtro actual
-                filterTasks(currentCategoryFilter);
-            });
-            bottomSheet.show(getChildFragmentManager(), "AddTaskBottomSheet");
-        });
+        fab.setOnClickListener(v -> openTaskModal(null));
 
         return view;
+    }
+
+    private void openTaskModal(@Nullable Task taskToEdit) {
+        AddTaskBottomSheetFragment bottomSheet = new AddTaskBottomSheetFragment();
+        if (taskToEdit != null) {
+            bottomSheet.setTaskToEdit(taskToEdit);
+        }
+        bottomSheet.setOnTaskSaveListener(new AddTaskBottomSheetFragment.OnTaskSaveListener() {
+            @Override
+            public void onTaskSave(Task savedTask) {
+                if (taskToEdit == null) {
+                    TaskRepository.getInstance().addTask(savedTask);
+                } else {
+                    TaskRepository.getInstance().updateTask(savedTask);
+                }
+                filterTasks(currentCategoryFilter);
+            }
+
+            @Override
+            public void onTaskDelete(Task taskToDelete) {
+                TaskRepository.getInstance().deleteTask(taskToDelete);
+                filterTasks(currentCategoryFilter);
+            }
+        });
+        bottomSheet.show(getChildFragmentManager(), "AddTaskBottomSheet");
     }
 
     private void filterTasks(String category) {
@@ -81,5 +92,15 @@ public class TasksFragment extends Fragment {
             }
             adapter.updateList(filtered);
         }
+    }
+
+    @Override
+    public void onTaskClick(Task task) {
+        openTaskModal(task);
+    }
+
+    @Override
+    public void onTaskUpdated(Task task) {
+        TaskRepository.getInstance().updateTask(task);
     }
 }

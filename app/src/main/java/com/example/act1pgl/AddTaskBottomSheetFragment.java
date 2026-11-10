@@ -19,17 +19,22 @@ import java.util.List;
 
 public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
 
-    // Interface para enviar la nueva tarea de vuelta a TasksFragment
-    public interface OnTaskAddedListener {
-        void onTaskAdded(Task task);
+    public interface OnTaskSaveListener {
+        void onTaskSave(Task task);
+        void onTaskDelete(Task task);
     }
 
-    private OnTaskAddedListener listener;
-    private List<String> subtasksList = new ArrayList<>();
+    private OnTaskSaveListener listener;
+    private Task taskToEdit;
+    private List<Subtask> subtasksList = new ArrayList<>();
     private String selectedCategory = "Work";
 
-    public void setOnTaskAddedListener(OnTaskAddedListener listener) {
+    public void setOnTaskSaveListener(OnTaskSaveListener listener) {
         this.listener = listener;
+    }
+
+    public void setTaskToEdit(Task task) {
+        this.taskToEdit = task;
     }
 
     @Nullable
@@ -42,43 +47,47 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
         ImageButton btnAddSubtask = view.findViewById(R.id.btn_add_subtask);
         LinearLayout containerSubtasks = view.findViewById(R.id.container_subtasks);
         TextView tvCategory = view.findViewById(R.id.tv_category_selector);
+        ImageButton btnDelete = view.findViewById(R.id.btn_delete_task);
         FloatingActionButton fabSave = view.findViewById(R.id.fab_save_task);
 
-        // Alternar categoría al hacer clic (Work <-> Personal)
-        tvCategory.setOnClickListener(v -> {
-            if (selectedCategory.equals("Work")) {
-                selectedCategory = "Personal";
-            } else {
-                selectedCategory = "Work";
+        // Si estamos editando, mostramos datos y botón de eliminar
+        if (taskToEdit != null) {
+            etTitle.setText(taskToEdit.getTitle());
+            selectedCategory = taskToEdit.getCategory();
+            tvCategory.setText(selectedCategory);
+            btnDelete.setVisibility(View.VISIBLE);
+
+            for (Subtask st : taskToEdit.getSubtasks()) {
+                subtasksList.add(new Subtask(st.getTitle(), st.isCompleted()));
+                addSubtaskRowView(inflater, containerSubtasks, st.getTitle());
             }
+        }
+
+        // Alternar categoría
+        tvCategory.setOnClickListener(v -> {
+            selectedCategory = selectedCategory.equals("Work") ? "Personal" : "Work";
             tvCategory.setText(selectedCategory);
         });
 
-        // Botón para agregar subtarea a la vista
-        // Fragmento dentro de btnAddSubtask.setOnClickListener en AddTaskBottomSheetFragment.java
+        // Botón añadir subtarea
         btnAddSubtask.setOnClickListener(v -> {
             String subtaskText = etSubtaskInput.getText().toString().trim();
             if (!TextUtils.isEmpty(subtaskText)) {
-                subtasksList.add(subtaskText);
-
-                View subtaskView = inflater.inflate(R.layout.item_subtask_row, containerSubtasks, false);
-                TextView tvText = subtaskView.findViewById(R.id.tv_subtask_text);
-                ImageButton btnRemove = subtaskView.findViewById(R.id.btn_remove_subtask);
-
-                tvText.setText(subtaskText);
-
-                // Guardar referencia al texto correspondiente
-                btnRemove.setOnClickListener(subView -> {
-                    containerSubtasks.removeView(subtaskView);
-                    subtasksList.remove(subtaskText);
-                });
-
-                containerSubtasks.addView(subtaskView);
+                subtasksList.add(new Subtask(subtaskText));
+                addSubtaskRowView(inflater, containerSubtasks, subtaskText);
                 etSubtaskInput.setText("");
             }
         });
 
-        // Guardar la tarea completa
+        // Botón Eliminar
+        btnDelete.setOnClickListener(v -> {
+            if (listener != null && taskToEdit != null) {
+                listener.onTaskDelete(taskToEdit);
+            }
+            dismiss();
+        });
+
+        // Botón Guardar
         fabSave.setOnClickListener(v -> {
             String title = etTitle.getText().toString().trim();
             if (TextUtils.isEmpty(title)) {
@@ -86,17 +95,31 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
                 return;
             }
 
-            Task newTask = new Task(title, selectedCategory);
-            for (String st : subtasksList) {
-                newTask.addSubtask(st);
-            }
+            Task taskToReturn = (taskToEdit != null) ? taskToEdit : new Task(title, selectedCategory);
+            taskToReturn.setTitle(title);
+            taskToReturn.setCategory(selectedCategory);
+            taskToReturn.setSubtasks(subtasksList);
 
             if (listener != null) {
-                listener.onTaskAdded(newTask);
+                listener.onTaskSave(taskToReturn);
             }
-            dismiss(); // Cerrar el modal
+            dismiss();
         });
 
         return view;
+    }
+
+    private void addSubtaskRowView(LayoutInflater inflater, LinearLayout containerSubtasks, String text) {
+        View subtaskView = inflater.inflate(R.layout.item_subtask_row, containerSubtasks, false);
+        TextView tvText = subtaskView.findViewById(R.id.tv_subtask_text);
+        ImageButton btnRemove = subtaskView.findViewById(R.id.btn_remove_subtask);
+
+        tvText.setText(text);
+        btnRemove.setOnClickListener(subView -> {
+            containerSubtasks.removeView(subtaskView);
+            subtasksList.removeIf(st -> st.getTitle().equals(text));
+        });
+
+        containerSubtasks.addView(subtaskView);
     }
 }
