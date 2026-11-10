@@ -35,23 +35,27 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         Task task = taskList.get(position);
         holder.tvTitle.setText(task.getTitle());
         holder.tvCategory.setText(task.getCategory());
+
+        // 1. Desvincular listener temporalmente para evitar disparos no deseados al reciclar
+        holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(task.isCompleted());
 
-        // Tachado si la tarea está completada
-        if (task.isCompleted()) {
-            holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        } else {
-            holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-        }
+        // Aplicar tachado visual inicial
+        updateStrikethrough(holder.tvTitle, task.isCompleted());
 
+        // 2. Asignar nuevamente el listener
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setCompleted(isChecked);
-            if (isChecked) {
-                holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            } else {
-                holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-            }
+            updateStrikethrough(holder.tvTitle, isChecked);
         });
+    }
+
+    private void updateStrikethrough(TextView textView, boolean isCompleted) {
+        if (isCompleted) {
+            textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            textView.setPaintFlags(textView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
     }
 
     @Override
