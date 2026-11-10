@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#F8F9FA">
 
-    <!-- Chips de filtrado horizontal (All, Work, Personal) -->
+    <!-- Chips de filtrado horizontal cargados dinámicamente -->
     <HorizontalScrollView
         android:id="@+id/scroll_chips"
         android:layout_width="match_parent"
@@ -20,31 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:singleSelection="true"
-            app:selectionRequired="true">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_all"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="All" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_work"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Work" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_personal"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Personal" />
-
-        </com.google.android.material.chip.ChipGroup>
+            app:selectionRequired="true" />
     </HorizontalScrollView>
 
     <!-- Lista de tareas -->

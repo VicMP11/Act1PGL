@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 public class TasksFragment extends Fragment implements TaskAdapter.OnTaskActionListener {
 
     private TaskAdapter adapter;
+    private ChipGroup chipGroup;
     private String currentCategoryFilter = "All";
 
     @Nullable
@@ -31,27 +33,50 @@ public class TasksFragment extends Fragment implements TaskAdapter.OnTaskActionL
         adapter = new TaskAdapter(new ArrayList<>(allTasks), this);
         recyclerView.setAdapter(adapter);
 
-        filterTasks(currentCategoryFilter);
-
-        ChipGroup chipGroup = view.findViewById(R.id.chip_group_filter);
-        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) return;
-
-            int checkedId = checkedIds.get(0);
-            if (checkedId == R.id.chip_all) {
-                currentCategoryFilter = "All";
-            } else if (checkedId == R.id.chip_work) {
-                currentCategoryFilter = "Work";
-            } else if (checkedId == R.id.chip_personal) {
-                currentCategoryFilter = "Personal";
-            }
-            filterTasks(currentCategoryFilter);
-        });
+        chipGroup = view.findViewById(R.id.chip_group_filter);
+        setupCategoryChips();
 
         FloatingActionButton fab = view.findViewById(R.id.fab_add_task);
         fab.setOnClickListener(v -> openTaskModal(null));
 
         return view;
+    }
+
+    private void setupCategoryChips() {
+        chipGroup.removeAllViews();
+
+        // 1. Chip "All"
+        Chip chipAll = new Chip(requireContext());
+        chipAll.setText("All");
+        chipAll.setCheckable(true);
+        chipAll.setClickable(true);
+        chipAll.setFocusable(true);
+        chipAll.setChecked(currentCategoryFilter.equals("All"));
+
+        chipAll.setOnClickListener(v -> {
+            currentCategoryFilter = "All";
+            filterTasks("All");
+        });
+        chipGroup.addView(chipAll);
+
+        // 2. Dynamic Chips from TaskRepository
+        List<String> categories = TaskRepository.getInstance().getCategories();
+        for (String cat : categories) {
+            Chip chip = new Chip(requireContext());
+            chip.setText(cat);
+            chip.setCheckable(true);
+            chip.setClickable(true);
+            chip.setFocusable(true);
+            chip.setChecked(currentCategoryFilter.equalsIgnoreCase(cat));
+
+            chip.setOnClickListener(v -> {
+                currentCategoryFilter = cat;
+                filterTasks(cat);
+            });
+            chipGroup.addView(chip);
+        }
+
+        filterTasks(currentCategoryFilter);
     }
 
     private void openTaskModal(@Nullable Task taskToEdit) {
@@ -67,13 +92,13 @@ public class TasksFragment extends Fragment implements TaskAdapter.OnTaskActionL
                 } else {
                     TaskRepository.getInstance().updateTask(savedTask);
                 }
-                filterTasks(currentCategoryFilter);
+                setupCategoryChips(); // Refrescar los chips si se creó una nueva categoría
             }
 
             @Override
             public void onTaskDelete(Task taskToDelete) {
                 TaskRepository.getInstance().deleteTask(taskToDelete);
-                filterTasks(currentCategoryFilter);
+                setupCategoryChips();
             }
         });
         bottomSheet.show(getChildFragmentManager(), "AddTaskBottomSheet");
@@ -81,7 +106,7 @@ public class TasksFragment extends Fragment implements TaskAdapter.OnTaskActionL
 
     private void filterTasks(String category) {
         List<Task> allTasks = TaskRepository.getInstance().getTasks();
-        if (category.equals("All")) {
+        if (category.equalsIgnoreCase("All")) {
             adapter.updateList(new ArrayList<>(allTasks));
         } else {
             List<Task> filtered = new ArrayList<>();

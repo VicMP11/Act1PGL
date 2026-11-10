@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
@@ -67,13 +68,16 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
                 subtasksList.add(new Subtask(st.getTitle(), st.isCompleted()));
                 addSubtaskRowView(inflater, containerSubtasks, st.getTitle());
             }
+        } else {
+            List<String> categories = TaskRepository.getInstance().getCategories();
+            if (!categories.isEmpty()) {
+                selectedCategory = categories.get(0);
+            }
+            tvCategory.setText(selectedCategory);
         }
 
-        // Alternar categoría
-        tvCategory.setOnClickListener(v -> {
-            selectedCategory = selectedCategory.equals("Work") ? "Personal" : "Work";
-            tvCategory.setText(selectedCategory);
-        });
+        // Seleccionar o crear categoría
+        tvCategory.setOnClickListener(v -> showCategoryPickerDialog(tvCategory));
 
         // Selector de fecha
         btnPickDate.setOnClickListener(v -> {
@@ -81,7 +85,7 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
             DatePickerDialog datePicker = new DatePickerDialog(requireContext(),
                     (datePickerView, year, month, dayOfMonth) -> {
                         selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
-                        Toast.makeText(getContext(), "Fecha seleccionada: " + selectedDate, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Fecha: " + selectedDate, Toast.LENGTH_SHORT).show();
                     },
                     cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
             datePicker.show();
@@ -126,6 +130,45 @@ public class AddTaskBottomSheetFragment extends BottomSheetDialogFragment {
         });
 
         return view;
+    }
+
+    private void showCategoryPickerDialog(TextView tvCategory) {
+        List<String> categories = TaskRepository.getInstance().getCategories();
+        List<String> options = new ArrayList<>(categories);
+        options.add("+ Crear nueva categoría");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Selecciona una Categoría");
+        builder.setItems(options.toArray(new String[0]), (dialog, which) -> {
+            if (which == options.size() - 1) {
+                // Diálogo para crear nueva categoría
+                showNewCategoryInputDialog(tvCategory);
+            } else {
+                selectedCategory = options.get(which);
+                tvCategory.setText(selectedCategory);
+            }
+        });
+        builder.show();
+    }
+
+    private void showNewCategoryInputDialog(TextView tvCategory) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Nueva Categoría");
+
+        final EditText input = new EditText(requireContext());
+        input.setHint("Ej. Personal, Universidad, Compras");
+        builder.setView(input);
+
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            String newCat = input.getText().toString().trim();
+            if (!TextUtils.isEmpty(newCat)) {
+                TaskRepository.getInstance().addCategory(newCat);
+                selectedCategory = newCat;
+                tvCategory.setText(selectedCategory);
+            }
+        });
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+        builder.show();
     }
 
     private void addSubtaskRowView(LayoutInflater inflater, LinearLayout containerSubtasks, String text) {

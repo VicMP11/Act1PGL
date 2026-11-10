@@ -6,11 +6,17 @@ import java.util.List;
 public class TaskRepository {
     private static TaskRepository instance;
     private final List<Task> taskList;
+    private final List<String> categoryList;
 
     private TaskRepository() {
         taskList = new ArrayList<>();
+        categoryList = new ArrayList<>();
 
-        // Datos iniciales de prueba con subtareas
+        // Categorías por defecto
+        categoryList.add("Work");
+        categoryList.add("Personal");
+
+        // Datos iniciales de prueba
         Task t1 = new Task("Doctors appointment", "Work");
         t1.addSubtask(new Subtask("Confirm timing"));
         t1.addSubtask(new Subtask("Bring medical history"));
@@ -52,5 +58,19 @@ public class TaskRepository {
                 break;
             }
         }
+    }
+
+    // --- GESTIÓN DE CATEGORÍAS ---
+    public List<String> getCategories() {
+        return categoryList;
+    }
+
+    public void addCategory(String category) {
+        if (!categoryList.contains(category) && !category.trim().isEmpty()) {
+            categoryList.add(category.trim());
+        }
+    }
+    public void deleteCategory(String category) {
+        categoryList.remove(category);
     }
 }
