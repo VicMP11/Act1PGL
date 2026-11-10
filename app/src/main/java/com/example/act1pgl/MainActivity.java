@@ -1,23 +1,27 @@
 package com.example.act1pgl;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
 
+    private DrawerLayout drawerLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        drawerLayout = findViewById(R.id.drawer_layout);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
-        // Cargar el fragmento de tareas por defecto al abrir la app
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new TasksFragment())
@@ -25,24 +29,22 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_tasks);
         }
 
-        // Listener para cambiar entre pestañas
         bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Fragment selectedFragment = null;
                 int itemId = item.getItemId();
 
-                if (itemId == R.id.nav_tasks) {
+                if (itemId == R.id.nav_menu) {
+                    // Abre el menú lateral tipo hamburguesa
+                    drawerLayout.openDrawer(GravityCompat.START);
+                    return true;
+                } else if (itemId == R.id.nav_tasks) {
                     selectedFragment = new TasksFragment();
                 } else if (itemId == R.id.nav_calendar) {
-                    // TODO: Reemplazar por tu CalendarFragment
-                    selectedFragment = new TasksFragment();
+                    selectedFragment = new TasksFragment(); // Reemplazar luego por CalendarFragment
                 } else if (itemId == R.id.nav_profile) {
-                    // TODO: Reemplazar por tu ProfileFragment
-                    selectedFragment = new TasksFragment();
-                } else if (itemId == R.id.nav_menu) {
-                    // Acción para el menú lateral o desplegable
-                    return true;
+                    selectedFragment = new TasksFragment(); // Reemplazar luego por ProfileFragment
                 }
 
                 if (selectedFragment != null) {
