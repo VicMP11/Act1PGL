@@ -2,38 +2,72 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8F9FA"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#F8F9FA">
+    android:paddingHorizontal="16dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="16dp">
 
+    <!-- Título con margen superior adecuado -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:text="Calendar"
         android:textColor="#1A1A1A"
         android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:textStyle="bold" />
 
-    <CalendarView
-        android:id="@+id/calendar_view"
+    <!-- Mes y Año centrado y sin botones cuadrados -->
+    <TextView
+        android:id="@+id/tv_month_year"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:gravity="center"
+        android:text="Noviembre 2026"
+        android:textColor="#2B5B75"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Días de la semana -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp">
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Dom" android:textColor="#78909C" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Lun" android:textColor="#78909C" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Mar" android:textColor="#78909C" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Mié" android:textColor="#78909C" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Jue" android:textColor="#78909C" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Vie" android:textColor="#78909C" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Sáb" android:textColor="#78909C" android:textSize="12sp" android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Grid del Calendario -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_calendar_grid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
-        android:elevation="2dp" />
+        android:elevation="1dp"
+        android:padding="8dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tasks for selected day"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        android:text="Tareas del día seleccionado"
         android:textColor="#78909C"
         android:textSize="14sp"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="8dp" />
+        android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_calendar_tasks"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 </LinearLayout>
