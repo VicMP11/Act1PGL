@@ -1,9 +1,10 @@
 package com.example.act1pgl;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -16,8 +17,21 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Cargar preferencia de modo oscuro antes de inflar vistas
+        SharedPreferences prefs = getSharedPreferences("settings_prefs", MODE_PRIVATE);
+        boolean isDark = prefs.getBoolean("dark_mode", false);
+        if (isDark) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Inicializar repositorios con contexto
+        TaskRepository.getInstance(this);
+        HabitRepository.getInstance(this);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
@@ -30,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_tasks);
         }
 
-        // Navegación del BottomNavigationView
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
@@ -54,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Navegación del Drawer Lateral (Menú Hamburguesa)
         navigationView.setNavigationItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();

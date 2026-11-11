@@ -49,6 +49,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             habit.setCompleted(isChecked);
             updateStrikethrough(holder.tvTitle, isChecked);
+            HabitRepository.getInstance().updateHabitState();
         });
 
         holder.btnDelete.setOnClickListener(v -> {

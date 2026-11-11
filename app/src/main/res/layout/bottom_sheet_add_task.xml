@@ -64,12 +64,14 @@
 
         <ImageButton
             android:id="@+id/btn_add_subtask"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Add subtask button"
+            android:contentDescription="Agregar subtarea"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_add"
-            android:tint="#2B5B75" />
+            app:tint="#2B5B75" />
     </LinearLayout>
 
     <View
